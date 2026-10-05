@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeatherNow - Modern Real-Time Weather & Forecast</title>
+    <meta name="description" content="Accurate, real-time weather forecasts, 7-day outlooks, and hourly conditions powered by Open-Meteo.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="theme-default">
+    <!-- SVG Icon Definitions -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <!-- Logo Icon -->
+        <symbol id="icon-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
+            <path d="M12 2v2"/>
+            <path d="M4.93 4.93l1.41 1.41"/>
+            <path d="M20 12h2"/>
+        </symbol>
+
+        <!-- Search Icon -->
+        <symbol id="icon-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </symbol>
+
+        <!-- Location Pin Icon -->
+        <symbol id="icon-location" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+            <circle cx="12" cy="10" r="3"/>
+        </symbol>
+
+        <!-- Clear / Close Icon -->
+        <symbol id="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+        </symbol>
+
+        <!-- Thermometer / Feels Like -->
+        <symbol id="icon-temp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/>
+        </symbol>
+
+        <!-- Humidity / Drop -->
+        <symbol id="icon-droplet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+        </symbol>
+
+        <!-- Wind Speed -->
+        <symbol id="icon-wind" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/>
+            <path d="M9.6 4.6A2 2 0 1 1 11 8H2"/>
+            <path d="M12.6 19.4A2 2 0 1 0 14 16H2"/>
+        </symbol>
+
+        <!-- Rain Probability / Umbrella -->
+        <symbol id="icon-umbrella" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 12A10 10 0 0 0 2 12h20Z"/>
+            <path d="M12 12v8a2 2 0 0 0 4 0"/>
+            <path d="M12 2v2"/>
+        </symbol>
+
+        <!-- Precipitation / Cloud Rain -->
+        <symbol id="icon-precipitation" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/>
+            <path d="M16 14v6"/>
+            <path d="M8 14v6"/>
+            <path d="M12 16v6"/>
+        </symbol>
+
+        <!-- UV Sun -->
+        <symbol id="icon-uv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2"/>
+            <path d="M12 20v2"/>
+            <path d="m4.93 4.93 1.41 1.41"/>
+            <path d="m17.66 17.66 1.41 1.41"/>
+            <path d="M2 12h2"/>
+            <path d="M20 12h2"/>
+            <path d="m6.34 17.66-1.41 1.41"/>
+            <path d="m19.07 4.93-1.41 1.41"/>
+        </symbol>
+
+        <!-- Pressure Gauge -->
+        <symbol id="icon-gauge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a10 10 0 1 0 10 10"/>
+            <path d="M12 12l5-5"/>
+            <path d="M2 12h2"/>
+            <path d="M12 2v2"/>
+        </symbol>
+
+        <!-- Sunrise -->
+        <symbol id="icon-sunrise" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v6"/>
+            <path d="m4.93 10.93 1.41 1.41"/>
+            <path d="M2 18h2"/>
+            <path d="M20 18h2"/>
+            <path d="m19.07 10.93-1.41 1.41"/>
+            <path d="M22 22H2"/>
+            <path d="m8 6 4-4 4 4"/>
+            <path d="M16 18a4 4 0 0 0-8 0"/>
+        </symbol>
+
+        <!-- Sunset -->
+        <symbol id="icon-sunset" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 10V4"/>
+            <path d="m4.93 10.93 1.41 1.41"/>
+            <path d="M2 18h2"/>
+            <path d="M20 18h2"/>
+            <path d="m19.07 10.93-1.41 1.41"/>
+            <path d="M22 22H2"/>
+            <path d="m16 8-4 4-4-4"/>
+            <path d="M16 18a4 4 0 0 0-8 0"/>
+        </symbol>
+
+        <!-- Weather Status Icons -->
+        <!-- Clear Day -->
+        <symbol id="weather-clear-day" viewBox="0 0 64 64">
+            <circle cx="32" cy="32" r="14" fill="#FDB813"/>
+            <g stroke="#FDB813" stroke-width="4" stroke-linecap="round">
+                <line x1="32" y1="6" x2="32" y2="12" />
+                <line x1="32" y1="52" x2="32" y2="58" />
+                <line x1="6" y1="32" x2="12" y2="32" />
+                <line x1="52" y1="32" x2="58" y2="32" />
+                <line x1="13.6" y1="13.6" x2="17.8" y2="17.8" />
+                <line x1="46.2" y1="46.2" x2="50.4" y2="50.4" />
+                <line x1="13.6" y1="50.4" x2="17.8" y2="46.2" />
+                <line x1="46.2" y1="17.8" x2="50.4" y2="13.6" />
+            </g>
+        </symbol>
+
+        <!-- Clear Night -->
+        <symbol id="weather-clear-night" viewBox="0 0 64 64">
+            <path d="M38 12a20 20 0 1 0 14 34.2A20.2 20.2 0 0 1 38 12Z" fill="#F4E07B" stroke="#DFCA5B" stroke-width="2"/>
+            <circle cx="20" cy="18" r="1.5" fill="#FFF"/>
+            <circle cx="48" cy="22" r="1.5" fill="#FFF"/>
+            <circle cx="16" cy="42" r="1" fill="#FFF"/>
+        </symbol>
+
+        <!-- Partly Cloudy Day -->
+        <symbol id="weather-partly-cloudy-day" viewBox="0 0 64 64">
+            <circle cx="24" cy="24" r="11" fill="#FDB813"/>
+            <path d="M22 48h22a12 12 0 0 0 1-23.9 16 16 0 0 0-29.2 4.4A10 10 0 0 0 22 48Z" fill="#E2E8F0" stroke="#CBD5E1" stroke-width="2"/>
+        </symbol>
+
+        <!-- Partly Cloudy Night -->
+        <symbol id="weather-partly-cloudy-night" viewBox="0 0 64 64">
+            <path d="M28 16a14 14 0 1 0 10 23.9 14.1 14.1 0 0 1-10-23.9Z" fill="#F4E07B"/>
+            <path d="M22 48h22a12 12 0 0 0 1-23.9 16 16 0 0 0-29.2 4.4A10 10 0 0 0 22 48Z" fill="#94A3B8" stroke="#64748B" stroke-width="2"/>
+        </symbol>
+
+        <!-- Overcast / Cloudy -->
+        <symbol id="weather-cloudy" viewBox="0 0 64 64">
+            <path d="M20 48h26a11 11 0 0 0 2-21.8 15 15 0 0 0-27.5-3A9.5 9.5 0 0 0 20 48Z" fill="#CBD5E1" stroke="#94A3B8" stroke-width="2"/>
+            <path d="M14 42h22a9 9 0 0 0 1-17.9 12 12 0 0 0-22 3.3A7.5 7.5 0 0 0 14 42Z" fill="#E2E8F0" opacity="0.9"/>
+        </symbol>
+
+        <!-- Fog -->
+        <symbol id="weather-fog" viewBox="0 0 64 64">
+            <path d="M18 36h28a10 10 0 0 0 1-19.9 13 13 0 0 0-24 3.7A8 8 0 0 0 18 36Z" fill="#CBD5E1"/>
+            <line x1="14" y1="44" x2="50" y2="44" stroke="#94A3B8" stroke-width="4" stroke-linecap="round"/>
+            <line x1="18" y1="52" x2="46" y2="52" stroke="#94A3B8" stroke-width="4" stroke-linecap="round"/>
+        </symbol>
+
+        <!-- Drizzle -->
+        <symbol id="weather-drizzle" viewBox="0 0 64 64">
+            <path d="M18 38h28a11 11 0 0 0 1-21.9 14 14 0 0 0-26 3.9A9 9 0 0 0 18 38Z" fill="#CBD5E1"/>
+            <line x1="22" y1="46" x2="20" y2="52" stroke="#38BDF8" stroke-width="3" stroke-linecap="round"/>
+            <line x1="32" y1="46" x2="30" y2="52" stroke="#38BDF8" stroke-width="3" stroke-linecap="round"/>
+            <line x1="42" y1="46" x2="40" y2="52" stroke="#38BDF8" stroke-width="3" stroke-linecap="round"/>
+        </symbol>
+
+        <!-- Rain -->
+        <symbol id="weather-rain" viewBox="0 0 64 64">
+            <path d="M18 36h28a11 11 0 0 0 1-21.9 14 14 0 0 0-26 3.9A9 9 0 0 0 18 36Z" fill="#94A3B8"/>
+            <line x1="22" y1="44" x2="18" y2="56" stroke="#0284C7" stroke-width="3.5" stroke-linecap="round"/>
+            <line x1="32" y1="44" x2="28" y2="56" stroke="#0284C7" stroke-width="3.5" stroke-linecap="round"/>
+            <line x1="42" y1="44" x2="38" y2="56" stroke="#0284C7" stroke-width="3.5" stroke-linecap="round"/>
+        </symbol>
+
+        <!-- Heavy Rain -->
+        <symbol id="weather-heavy-rain" viewBox="0 0 64 64">
+            <path d="M18 34h28a11 11 0 0 0 1-21.9 14 14 0 0 0-26 3.9A9 9 0 0 0 18 34Z" fill="#64748B"/>
+            <line x1="20" y1="42" x2="15" y2="56" stroke="#0369A1" stroke-width="4" stroke-linecap="round"/>
+            <line x1="30" y1="42" x2="25" y2="56" stroke="#0369A1" stroke-width="4" stroke-linecap="round"/>
+            <line x1="40" y1="42" x2="35" y2="56" stroke="#0369A1" stroke-width="4" stroke-linecap="round"/>
+            <line x1="48" y1="42" x2="43" y2="56" stroke="#0369A1" stroke-width="4" stroke-linecap="round"/>
+        </symbol>
+
+        <!-- Rain Showers Day -->
+        <symbol id="weather-rain-showers-day" viewBox="0 0 64 64">
+            <circle cx="20" cy="20" r="9" fill="#FDB813"/>
+            <path d="M18 38h26a10 10 0 0 0 1-19.9 13 13 0 0 0-24 3.7A8 8 0 0 0 18 38Z" fill="#CBD5E1"/>
+            <line x1="24" y1="46" x2="21" y2="56" stroke="#38BDF8" stroke-width="3.5" stroke-linecap="round"/>
+            <line x1="36" y1="46" x2="33" y2="56" stroke="#38BDF8" stroke-width="3.5" stroke-linecap="round"/>
+        </symbol>
+
+        <!-- Rain Showers Night -->
+        <symbol id="weather-rain-showers-night" viewBox="0 0 64 64">
+            <path d="M22 16a11 11 0 1 0 8 18.8 11 11 0 0 1-8-18.8Z" fill="#F4E07B"/>
+            <path d="M18 38h26a10 10 0 0 0 1-19.9 13 13 0 0 0-24 3.7A8 8 0 0 0 18 38Z" fill="#94A3B8"/>
+            <line x1="24" y1="46" x2="21" y2="56" stroke="#38BDF8" stroke-width="3.5" stroke-linecap="round"/>
+            <line x1="36" y1="46" x2="33" y2="56" stroke="#38BDF8" stroke-width="3.5" stroke-linecap="round"/>
+        </symbol>
+
+        <!-- Snow -->
+        <symbol id="weather-snow" viewBox="0 0 64 64">
+            <path d="M18 36h28a11 11 0 0 0 1-21.9 14 14 0 0 0-26 3.9A9 9 0 0 0 18 36Z" fill="#CBD5E1"/>
+            <circle cx="22" cy="46" r="2.5" fill="#93C5FD"/>
+            <circle cx="32" cy="52" r="2.5" fill="#93C5FD"/>
+            <circle cx="42" cy="46" r="2.5" fill="#93C5FD"/>
+        </symbol>
+
+        <!-- Heavy Snow -->
+        <symbol id="weather-heavy-snow" viewBox="0 0 64 64">
+            <path d="M18 34h28a11 11 0 0 0 1-21.9 14 14 0 0 0-26 3.9A9 9 0 0 0 18 34Z" fill="#94A3B8"/>
+            <circle cx="20" cy="44" r="2.5" fill="#BAE6FD"/>
+            <circle cx="32" cy="44" r="2.5" fill="#BAE6FD"/>
+            <circle cx="44" cy="44" r="2.5" fill="#BAE6FD"/>
+            <circle cx="26" cy="54" r="2.5" fill="#BAE6FD"/>
+            <circle cx="38" cy="54" r="2.5" fill="#BAE6FD"/>
+        </symbol>
+
+        <!-- Freezing Rain -->
+        <symbol id="weather-freezing-rain" viewBox="0 0 64 64">
+            <path d="M18 36h28a11 11 0 0 0 1-21.9 14 14 0 0 0-26 3.9A9 9 0 0 0 18 36Z" fill="#94A3B8"/>
+            <line x1="22" y1="44" x2="19" y2="52" stroke="#38BDF8" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="36" cy="48" r="3" fill="#BAE6FD"/>
+            <line x1="44" y1="44" x2="41" y2="52" stroke="#38BDF8" stroke-width="3" stroke-linecap="round"/>
+        </symbol>
+
+        <!-- Thunderstorm -->
+        <symbol id="weather-thunderstorm" viewBox="0 0 64 64">
+            <path d="M18 32h28a11 11 0 0 0 1-21.9 14 14 0 0 0-26 3.9A9 9 0 0 0 18 32Z" fill="#475569"/>
+            <polygon points="32,36 24,47 31,47 28,58 39,44 32,44" fill="#FACC15"/>
+        </symbol>
+    </svg>
+
+    <div class="app-wrapper">
+        <!-- 1. HEADER SECTION -->
+        <header class="app-header">
+            <div class="brand-container">
+                <div class="logo-icon-wrapper">
+                    <svg class="logo-icon"><use href="#icon-logo"/></svg>
+                </div>
+                <div class="brand-text">
+                    <h1 class="brand-title">Weather<span class="brand-accent">Now</span></h1>
+                    <span class="brand-tagline">Real-time Weather & Global Forecast</span>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <!-- Unit Switcher -->
+                <div class="unit-toggle" id="unitToggle" role="group" aria-label="Temperature unit selector">
+                    <button type="button" class="unit-btn active" id="unitC" data-unit="C" title="Celsius">°C</button>
+                    <button type="button" class="unit-btn" id="unitF" data-unit="F" title="Fahrenheit">°F</button>
+                </div>
+
+                <!-- Geolocation Button -->
+                <button type="button" class="btn-icon-action" id="geoBtn" title="Use current location" aria-label="Use current location">
+                    <svg class="action-svg"><use href="#icon-location"/></svg>
+                    <span class="geo-btn-text">My Location</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- 2. CITY SEARCH SECTION -->
+        <section class="search-section" aria-label="City Search">
+            <form class="search-form" id="searchForm" autocomplete="off" onsubmit="return false;">
+                <div class="search-input-wrapper">
+                    <svg class="search-icon"><use href="#icon-search"/></svg>
+                    <input 
+                        type="text" 
+                        id="cityInput" 
+                        class="search-input" 
+                        placeholder="Search for any city or location (e.g. London, Tokyo, New York)..." 
+                        autocomplete="off"
+                        spellcheck="false"
+                        aria-label="Search city name"
+                        required
+                    />
+                    <button type="button" class="clear-input-btn" id="clearInputBtn" aria-label="Clear search input" style="display: none;">
+                        <svg class="clear-svg"><use href="#icon-close"/></svg>
+                    </button>
+                    <!-- Suggestions Dropdown -->
+                    <ul class="suggestions-dropdown" id="suggestionsDropdown" style="display: none;"></ul>
+                </div>
+                <button type="submit" class="search-btn" id="searchSubmitBtn">
+                    <svg class="btn-search-icon"><use href="#icon-search"/></svg>
+                    <span>Search</span>
+                </button>
+            </form>
+
+            <!-- Popular Quick-Select Cities -->
+            <div class="quick-cities-container">
+                <span class="quick-label">Popular:</span>
+                <div class="quick-chips" id="quickChips">
+                    <button type="button" class="chip-btn" data-city="London">London</button>
+                    <button type="button" class="chip-btn" data-city="New York">New York</button>
+                    <button type="button" class="chip-btn" data-city="Tokyo">Tokyo</button>
+                    <button type="button" class="chip-btn" data-city="Paris">Paris</button>
+                    <button type="button" class="chip-btn" data-city="Sydney">Sydney</button>
+                    <button type="button" class="chip-btn" data-city="Dubai">Dubai</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- NOTIFICATION / ERROR BANNER -->
+        <div class="alert-banner" id="alertBanner" role="alert" style="display: none;">
+            <span class="alert-message" id="alertMessage"></span>
+            <button type="button" class="alert-close-btn" id="alertCloseBtn" aria-label="Dismiss alert">&times;</button>
+        </div>
+
+        <!-- SKELETON / LOADING INDICATOR -->
+        <div class="loading-state" id="loadingState" style="display: none;">
+            <div class="spinner-ring"></div>
+            <p class="loading-text">Fetching live weather data...</p>
+        </div>
+
+        <!-- WEATHER CONTENT DASHBOARD -->
+        <main class="dashboard-content" id="dashboardContent" style="display: none;">
+            <!-- 3. CURRENT WEATHER SECTION -->
+            <section class="current-weather-card" aria-label="Current Weather Conditions">
+                <div class="current-weather-header">
+                    <div class="location-details">
+                        <div class="location-title-row">
+                            <svg class="inline-pin-icon"><use href="#icon-location"/></svg>
+                            <h2 class="city-name" id="cityName">London</h2>
+                            <span class="country-badge" id="countryName">United Kingdom</span>
+                        </div>
+                        <p class="date-time-display" id="dateTimeDisplay">Monday, September 14, 2026 • 1:25 PM</p>
+                    </div>
+                    <div class="live-pill">
+                        <span class="live-dot"></span> Live Weather
+                    </div>
+                </div>
+
+                <div class="current-weather-body">
+                    <div class="weather-hero-main">
+                        <div class="hero-icon-container">
+                            <svg class="weather-hero-svg" id="currentWeatherIcon">
+                                <use href="#weather-partly-cloudy-day"/>
+                            </svg>
+                        </div>
+                        <div class="hero-temp-container">
+                            <div class="temp-wrapper">
+                                <span class="temp-value" id="currentTemp">22</span>
+                                <span class="temp-unit" id="tempUnitDisplay">°C</span>
+                            </div>
+                            <h3 class="weather-condition-title" id="weatherCondition">Partly Cloudy</h3>
+                            <p class="feels-like-text">
+                                Feels like <span id="feelsLikeTemp">23</span><span class="unit-label" id="feelsLikeUnit">°C</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- METRICS GRID (8 Comprehensive Details) -->
+                    <div class="metrics-grid">
+                        <!-- Humidity -->
+                        <div class="metric-box">
+                            <div class="metric-icon-wrap icon-drop">
+                                <svg class="metric-svg"><use href="#icon-droplet"/></svg>
+                            </div>
+                            <div class="metric-data">
+                                <span class="metric-label">Humidity</span>
+                                <span class="metric-val" id="metricHumidity">65%</span>
+                            </div>
+                        </div>
+
+                        <!-- Wind Speed -->
+                        <div class="metric-box">
+                            <div class="metric-icon-wrap icon-wind">
+                                <svg class="metric-svg"><use href="#icon-wind"/></svg>
+                            </div>
+                            <div class="metric-data">
+                                <span class="metric-label">Wind Speed</span>
+                                <div class="metric-val-row">
+                                    <span class="metric-val" id="metricWindSpeed">14.5</span>
+                                    <span class="metric-sub" id="windUnitLabel">km/h</span>
+                                    <span class="metric-badge" id="metricWindDir">NE</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Precipitation -->
+                        <div class="metric-box">
+                            <div class="metric-icon-wrap icon-precip">
+                                <svg class="metric-svg"><use href="#icon-precipitation"/></svg>
+                            </div>
+                            <div class="metric-data">
+                                <span class="metric-label">Precipitation</span>
+                                <span class="metric-val" id="metricPrecipitation">0.0 mm</span>
+                            </div>
+                        </div>
+
+                        <!-- Rain Probability -->
+                        <div class="metric-box">
+                            <div class="metric-icon-wrap icon-rain">
+                                <svg class="metric-svg"><use href="#icon-umbrella"/></svg>
+                            </div>
+                            <div class="metric-data">
+                                <span class="metric-label">Rain Chance</span>
+                                <span class="metric-val" id="metricRainProb">15%</span>
+                            </div>
+                        </div>
+
+                        <!-- UV Index -->
+                        <div class="metric-box">
+                            <div class="metric-icon-wrap icon-uv">
+                                <svg class="metric-svg"><use href="#icon-uv"/></svg>
+                            </div>
+                            <div class="metric-data">
+                                <span class="metric-label">UV Index</span>
+                                <div class="metric-val-row">
+                                    <span class="metric-val" id="metricUVIndex">4</span>
+                                    <span class="metric-badge" id="metricUVCategory">Moderate</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pressure -->
+                        <div class="metric-box">
+                            <div class="metric-icon-wrap icon-gauge">
+                                <svg class="metric-svg"><use href="#icon-gauge"/></svg>
+                            </div>
+                            <div class="metric-data">
+                                <span class="metric-label">Pressure</span>
+                                <span class="metric-val" id="metricPressure">1014 hPa</span>
+                            </div>
+                        </div>
+
+                        <!-- Sunrise -->
+                        <div class="metric-box">
+                            <div class="metric-icon-wrap icon-sunrise">
+                                <svg class="metric-svg"><use href="#icon-sunrise"/></svg>
+                            </div>
+                            <div class="metric-data">
+                                <span class="metric-label">Sunrise</span>
+                                <span class="metric-val" id="metricSunrise">06:28 AM</span>
+                            </div>
+                        </div>
+
+                        <!-- Sunset -->
+                        <div class="metric-box">
+                            <div class="metric-icon-wrap icon-sunset">
+                                <svg class="metric-svg"><use href="#icon-sunset"/></svg>
+                            </div>
+                            <div class="metric-data">
+                                <span class="metric-label">Sunset</span>
+                                <span class="metric-val" id="metricSunset">07:15 PM</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 24-HOUR HOURLY FORECAST STRIP -->
+            <section class="forecast-section hourly-section" aria-label="24-Hour Hourly Forecast">
+                <div class="section-title-bar">
+                    <h3 class="section-title">Hourly Forecast</h3>
+                    <span class="section-hint">Next 24 Hours</span>
+                </div>
+                <div class="hourly-scroll-strip" id="hourlyScrollStrip">
+                    <!-- Dynamic hourly cards injected by JS -->
+                </div>
+            </section>
+
+            <!-- 4. 7-DAY FORECAST SECTION -->
+            <section class="forecast-section daily-section" aria-label="7-Day Extended Forecast">
+                <div class="section-title-bar">
+                    <h3 class="section-title">7-Day Forecast</h3>
+                    <span class="section-hint">Daily Outlook & Probability</span>
+                </div>
+                <div class="daily-cards-grid" id="dailyCardsGrid">
+                    <!-- Dynamic 7-day forecast cards injected by JS -->
+                </div>
+            </section>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="app-footer">
+            <p>WeatherNow &bull; Powered by <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo Weather API</a> &bull; Fast, Free &amp; Open Source</p>
+        </footer>
+    </div>
+
+    <!-- Application Script -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
